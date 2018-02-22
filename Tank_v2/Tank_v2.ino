@@ -9,19 +9,22 @@
  * PINS:
  * 2 IR in
  * 3~ Turret Servo DAT
- * 4 motor IN2 
+ * 4  
  * 5~ motor ENA
  * 6~ motor ENB
  * 7 CE
  * 8 CS
- * 9~ IN3
- * 10~  IN4
+ * 9(~) 
+ * 10(~)  
  * 11~  MOSI
  * 12  MISO
  * 13  SCK
  * 
- * A1
+ * A1 Shooter
  * A2 IN2
+ * A3 motor IN2
+ * A4 IN3
+ * A5 IN4
  * 
  */
 
