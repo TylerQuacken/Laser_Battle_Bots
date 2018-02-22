@@ -7,7 +7,7 @@
  * Library: TMRh20/RF24
  * 
  * PINS:
- * 2 motor IN1
+ * 2 IR in
  * 3~ Turret Servo DAT
  * 4 motor IN2 
  * 5~ motor ENA
@@ -20,6 +20,9 @@
  * 12  MISO
  * 13  SCK
  * 
+ * A1
+ * A2 IN2
+ * 
  */
 
 #include <SPI.h>
@@ -28,13 +31,16 @@
 #include <Servo.h>
 
 
-int IN1 = 2;    //forward Left
-int IN2 = 4;
-int ENA = 5;
-int IN3 = 9;    //forward Right
-int IN4 = 10;
+#define IN1 A2    //forward Left
+#define IN2 A3
+int ENA 5
+#define IN3 A4    //forward Right
+#define IN4 A5
 int ENB = 6;
 int servo_pin = 3;
+#define shooter_pin A1
+#define IR_in_pin 2
+
 int cooldown = 500;     //# of millis between shots
 
 #define CE_pin 7    //TX/RX mode pin
@@ -43,8 +49,6 @@ int cooldown = 500;     //# of millis between shots
 #define input_max 255
 #define inbound_len 3     //# of bytes in incoming message
 #define outbound_len 4
-#define shooter_pin A1
-#define IR_in_pin A2
 #define IR_message_length 8
 
 int Lspeed = 0;
@@ -77,7 +81,7 @@ void setup() {
   pinMode(10, OUTPUT);
   pinMode(shooter_pin, OUTPUT);
   pinMode(IR_in_pin, INPUT);
-  Serial.begin(9600);
+  Serial.begin(115200);
   radio.begin();
   radio.openReadingPipe(1, controller_address);
   radio.openWritingPipe(tank_address);
@@ -131,8 +135,8 @@ void loop() {
   check_inbox();
 
 
-  if(shooting == false)
-    delay(10);
+//  if(shooting == false)
+//    delay(10);
 
 
 }
@@ -196,16 +200,16 @@ void check_inbox(){
 //    Serial.print("    ");
 //    Serial.println(shooting);
 
-    Serial.print(message[0]);
-    Serial.print("    ");
-    Serial.print(message[1]);
-    Serial.print("    ");
-    Serial.print(bitRead(message[2],3));
-    Serial.print(bitRead(message[2],2));
-    Serial.print(bitRead(message[2],1));
-    Serial.print(bitRead(message[2],0));
-    Serial.print("    ");
-    Serial.println(shooting);
+//    Serial.print(message[0]);
+//    Serial.print("    ");
+//    Serial.print(message[1]);
+//    Serial.print("    ");
+//    Serial.print(bitRead(message[2],3));
+//    Serial.print(bitRead(message[2],2));
+//    Serial.print(bitRead(message[2],1));
+//    Serial.print(bitRead(message[2],0));
+//    Serial.print("    ");
+//    Serial.println(shooting);
 
 //    radio.stopListening();    //change to TX mode
 //
@@ -254,22 +258,22 @@ void shoot(byte message){
   transmit[6] = 380 + 500*(boolean(0x02&message));
   transmit[7] = 380 + 500*(boolean(0x01&message));
 
-  Serial.print(transmit[0]);
-  Serial.print("    ");
-  Serial.print(transmit[1]);
-  Serial.print("    ");
-  Serial.print(transmit[2]);
-  Serial.print("    ");
-  Serial.print(transmit[3]);
-  Serial.print("    ");
-  Serial.print(transmit[4]);
-  Serial.print("    ");
-  Serial.print(transmit[5]);
-  Serial.print("    ");
-  Serial.print(transmit[6]);
-  Serial.print("    ");
-  Serial.print(transmit[7]);
-  Serial.println("    ");
+//  Serial.print(transmit[0]);
+//  Serial.print("    ");
+//  Serial.print(transmit[1]);
+//  Serial.print("    ");
+//  Serial.print(transmit[2]);
+//  Serial.print("    ");
+//  Serial.print(transmit[3]);
+//  Serial.print("    ");
+//  Serial.print(transmit[4]);
+//  Serial.print("    ");
+//  Serial.print(transmit[5]);
+//  Serial.print("    ");
+//  Serial.print(transmit[6]);
+//  Serial.print("    ");
+//  Serial.print(transmit[7]);
+//  Serial.println("    ");
 
 //  digitalWrite(out_pin, HIGH);
 //  delayMicroseconds(3000);
@@ -293,7 +297,7 @@ void shoot(byte message){
 
 void data_in(){
     IR_receiving = true;
-  
+    //Serial.println("flag");
   
 //  IR_message[index] = micros();
 //  index ++;
