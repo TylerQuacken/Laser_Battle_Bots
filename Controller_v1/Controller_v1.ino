@@ -8,11 +8,14 @@
  * 
  * PINS:
  * 
+ * 
+ * LiquidCrystal(rs, enable, d4, d5, d6, d7) 
  */
 
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+#include <LiquidCrystal.h>
 
 // Create an instance of the radio transmission
 RF24 radio(7, 8); // numbers define CE CSN pins
