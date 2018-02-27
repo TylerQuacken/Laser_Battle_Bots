@@ -36,7 +36,7 @@
 
 #define IN1 A2    //forward Left
 #define IN2 A3
-int ENA 5
+int ENA = 5;
 #define IN3 A4    //forward Right
 #define IN4 A5
 int ENB = 6;
@@ -44,7 +44,8 @@ int servo_pin = 3;
 #define shooter_pin A1
 #define IR_in_pin 2
 
-int cooldown = 500;     //# of millis between shots
+int cooldown = 100;     //# of millis between shots
+unsigned long last_shot = 0;
 
 #define CE_pin 7    //TX/RX mode pin
 #define CSN_pin 8   //Slave select, not used
@@ -100,7 +101,8 @@ void loop() {
   turret.write(turret_pos);
   drive(Lspeed, Rspeed);
   //digitalWrite(shooter_pin,shooting);
-  if(shooting == true){
+  if(shooting == true){// && (millis() - last_shot >= cooldown)){
+    //last_shot = millis();
     shoot(0b00000000);    //Fire one damage, solo mode
   }
 
@@ -195,10 +197,10 @@ void check_inbox(){
       turret_pos -= 3;
     shooting = !(bitRead(message[2],2)); // third bit is LED activator
     
-//    Serial.print(Lspeed);
-//    Serial.print("    ");
-//    Serial.print(Rspeed);
-//    Serial.print("    ");
+    Serial.print(Lspeed);
+    Serial.print("    ");
+    Serial.print(Rspeed);
+    Serial.println("    ");
 //    Serial.print(turret_pos);
 //    Serial.print("    ");
 //    Serial.println(shooting);
@@ -296,7 +298,6 @@ void shoot(byte message){
   }
   
 }
-
 
 void data_in(){
     IR_receiving = true;
