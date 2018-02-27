@@ -30,6 +30,15 @@ const byte button0 = 3;   //right button
 const byte button1 = 2;   //left button
 const byte button2 = 4;   //shooter button
 
+#define RS 9
+#define EN 10
+#define d4 A2
+#define d5 A3
+#define d6 A4
+#define d7 A5
+
+LiquidCrystal lcd(RS, EN, d4, d5, d6, d7);
+
 // Declare a variable to store all four button states
 byte buttons = 0;
 
@@ -40,13 +49,26 @@ void setup() {
   radio.openReadingPipe(2, in_address);
   radio.setPALevel(RF24_PA_MIN);
   radio.stopListening(); // Set as a transmitter
+  
+  lcd.begin(16, 2);
+  lcd.setCursor(0, 1);
+  lcd.print("hello, world!");
 
+  pinMode(RS, OUTPUT);
+  pinMode(EN, OUTPUT);
+  pinMode(d4, OUTPUT);
+  pinMode(d5, OUTPUT);
+  pinMode(d6, OUTPUT);
+  pinMode(d7, OUTPUT);
   pinMode(button1, INPUT_PULLUP); // Make buttons digital inputs
   pinMode(button0, INPUT_PULLUP);
   pinMode(button2, INPUT_PULLUP);
 }
 
 void loop() {
+
+  lcd.setCursor(0, 1);  
+  lcd.print("hello, world!");
 
   // Initialize variables to read joystick values
   int y = analogRead(y_pin);
