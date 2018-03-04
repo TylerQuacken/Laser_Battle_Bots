@@ -16,6 +16,13 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 #include <LiquidCrystal.h>
+#include "control_func.h"
+#include "control_chars.h"
+
+int hp = 999;
+int hp_max = 999;
+int Lammo = 99;
+int Lammo_max = 99;
 
 // Create an instance of the radio transmission
 RF24 radio(7, 8); // numbers define CE CSN pins
@@ -38,6 +45,12 @@ const byte button2 = 4;   //shooter button
 #define d7 A5
 
 LiquidCrystal lcd(RS, EN, d4, d5, d6, d7);
+byte Lgun_char = 0;    //set char numbers for custom chars (0-7)
+byte heart_char = 1;   //call lcd.write(XXX_char) to display char
+byte shield_char = 2;
+
+byte hp_pos[] = {0,0};     //col, row of position to display each vital
+byte Lammo_pos[] = {10,0};
 
 // Declare a variable to store all four button states
 byte buttons = 0;
@@ -51,8 +64,11 @@ void setup() {
   radio.stopListening(); // Set as a transmitter
   
   lcd.begin(16, 2);
-  lcd.setCursor(0, 1);
-  lcd.print("hello, world!");
+  lcd.createChar(Lgun_char, Lgun_bits);
+  lcd.createChar(heart_char, heart_bits);
+  lcd.createChar(shield_char, shield_bits);
+  
+  printVitals();    //prints health and ammo to LCD (control_func)
 
   pinMode(RS, OUTPUT);
   pinMode(EN, OUTPUT);
@@ -67,8 +83,6 @@ void setup() {
 
 void loop() {
 
-  lcd.setCursor(0, 1);  
-  lcd.print("hello, world!");
 
   // Initialize variables to read joystick values
   int y = analogRead(y_pin);
@@ -122,15 +136,15 @@ void loop() {
   radio.write(&message, sizeof(message));     //send message, wait for ack
 
   
-    Serial.print(message[0]);
-    Serial.print("    ");
-    Serial.print(message[1]);
-    Serial.print("    ");
-    Serial.print(bitRead(message[2],3));
-    Serial.print(bitRead(message[2],2));
-    Serial.print(bitRead(message[2],1));
-    Serial.print(bitRead(message[2],0));
-    Serial.println("    ");
+//    Serial.print(message[0]);
+//    Serial.print("    ");
+//    Serial.print(message[1]);
+//    Serial.print("    ");
+//    Serial.print(bitRead(message[2],3));
+//    Serial.print(bitRead(message[2],2));
+//    Serial.print(bitRead(message[2],1));
+//    Serial.print(bitRead(message[2],0));
+//    Serial.println("    ");
 
     delay(10);
   
@@ -144,5 +158,33 @@ void loop() {
 //  radio.stopListening();              //get ready to send again
 }
 
+
+void printVitals(){
+  
+  lcd.setCursor(hp_pos[0], hp_pos[1]);    //display the hp icon
+  lcd.write(shield_char);
+  //display current health
+  String hp_text;   //will contain 'XXX/XXX'
+  if (hp < 100)
+    hp_text += " ";   //precede with "_" if hp has fewer digits
+  if (hp < 10)
+    hp_text += " ";
+  hp_text += String(hp) + '/' + String(hp_max);   //concatenate  strings
+  lcd.setCursor(hp_pos[0]+1, hp_pos[1]);    
+  lcd.print(hp_text);
+  
+  lcd.setCursor(Lammo_pos[0], Lammo_pos[1]);    //display the light gun icon
+  lcd.write(Lgun_char);
+  //display current health
+  String Lammo_text;   //will contain 'XX/XX'
+  if (Lammo < 10)   //precede with "_" if fewer digits
+    Lammo_text += " ";
+  Lammo_text += String(Lammo) + '/' + String(Lammo_max);   //concatenate  strings
+  lcd.setCursor(Lammo_pos[0]+1, Lammo_pos[1]);    
+  lcd.print(Lammo_text);
+
+  Serial.println(hp_text);
+  Serial.println(Lammo_text);
+}
 
 
