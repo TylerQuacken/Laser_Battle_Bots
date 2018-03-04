@@ -48,7 +48,7 @@ int cooldown = 100;     //# of millis between shots
 unsigned long last_shot = 0;
 
 #define CE_pin 7    //TX/RX mode pin
-#define CSN_pin 8   //Slave select, not used
+#define CSN_pin 8   //Slave select
 #define input_min 0
 #define input_max 255
 #define inbound_len 3     //# of bytes in incoming message
@@ -101,8 +101,8 @@ void loop() {
   turret.write(turret_pos);
   drive(Lspeed, Rspeed);
   //digitalWrite(shooter_pin,shooting);
-  if(shooting == true){// && (millis() - last_shot >= cooldown)){
-    //last_shot = millis();
+  if(shooting == true && (millis() - last_shot >= cooldown)){
+    last_shot = millis();
     shoot(0b00000000);    //Fire one damage, solo mode
   }
 
