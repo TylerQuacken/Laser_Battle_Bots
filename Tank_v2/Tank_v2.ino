@@ -44,7 +44,7 @@ int servo_pin = 3;
 #define shooter_pin A1
 #define IR_in_pin 2
 
-int cooldown = 100;     //# of millis between shots
+int cooldown = 300;     //# of millis between shots
 unsigned long last_shot = 0;
 
 #define CE_pin 7    //TX/RX mode pin
@@ -103,7 +103,7 @@ void loop() {
   //digitalWrite(shooter_pin,shooting);
   if(shooting == true && (millis() - last_shot >= cooldown)){
     last_shot = millis();
-    shoot(0b00000000);    //Fire one damage, solo mode
+    shoot(0b01001001);    //Fire one damage, solo mode
   }
 
   //Get IR input
@@ -243,25 +243,16 @@ int deadZone(int num, int radius, int deadVal){   //takes any number (usually a 
 }
 
 void shoot(byte message){
-//  int transmit[8];
-//  transmit[0] = 1000 + 1000*(boolean(0x80&message));
-//  transmit[1] = 1000 + 1000*(boolean(0x40&message));
-//  transmit[2] = 1000 + 1000*(boolean(0x20&message));
-//  transmit[3] = 1000 + 1000*(boolean(0x10&message));
-//  transmit[4] = 1000 + 1000*(boolean(0x08&message));
-//  transmit[5] = 1000 + 1000*(boolean(0x04&message));
-//  transmit[6] = 1000 + 1000*(boolean(0x02&message));
-//  transmit[7] = 1000 + 1000*(boolean(0x01&message));
   
   int transmit[8];
-  transmit[0] = 380 + 500*(boolean(0x80&message));
-  transmit[1] = 380 + 500*(boolean(0x40&message));
-  transmit[2] = 380 + 500*(boolean(0x20&message));
-  transmit[3] = 380 + 500*(boolean(0x10&message));
-  transmit[4] = 380 + 500*(boolean(0x08&message));
-  transmit[5] = 380 + 500*(boolean(0x04&message));
-  transmit[6] = 380 + 500*(boolean(0x02&message));
-  transmit[7] = 380 + 500*(boolean(0x01&message));
+  transmit[0] = 380 + 500*(boolean(0x80&message));  //team
+  transmit[1] = 380 + 500*(boolean(0x40&message));  //team
+  transmit[2] = 380 + 500*(boolean(0x20&message));  //dmg
+  transmit[3] = 380 + 500*(boolean(0x10&message));  //dmg
+  transmit[4] = 380 + 500*(boolean(0x08&message));  //dmg
+  transmit[5] = 380 + 500*(boolean(0x04&message));  //slow status
+  transmit[6] = 380 + 500*(boolean(0x02&message));  //cannon disable
+  transmit[7] = 380 + 500*(boolean(0x01&message));  //freeze
 
 //  Serial.print(transmit[0]);
 //  Serial.print("    ");

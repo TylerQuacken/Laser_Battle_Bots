@@ -146,6 +146,7 @@ void loop() {
 //    Serial.print(bitRead(message[2],0));
 //    Serial.println("    ");
 
+    printVitals();    //prints health and ammo to LCD (control_func)
     delay(10);
   
 //  radio.startListening();               //listen for response
@@ -160,6 +161,14 @@ void loop() {
 
 
 void printVitals(){
+
+  if (Serial.available() > 0){
+  byte incoming0 = Serial.read() - 48;
+  byte incoming1 = Serial.read() - 48;
+  byte incoming2 = Serial.read() - 48;
+  hp = 100*incoming0 + 10*incoming1 + incoming2;
+  }
+  
   
   lcd.setCursor(hp_pos[0], hp_pos[1]);    //display the hp icon
   lcd.write(shield_char);
