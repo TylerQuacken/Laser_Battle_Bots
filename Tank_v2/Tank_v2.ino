@@ -52,7 +52,7 @@ unsigned long last_shot = 0;
 #define input_min 0
 #define input_max 255
 #define inbound_len 3     //# of bytes in incoming message
-#define outbound_len 4
+#define outbound_len 3
 #define IR_message_length 8
 
 int Lspeed = 0;
@@ -201,32 +201,20 @@ void check_inbox(){
     Serial.print("    ");
     Serial.print(Rspeed);
     Serial.println("    ");
-//    Serial.print(turret_pos);
-//    Serial.print("    ");
-//    Serial.println(shooting);
 
-//    Serial.print(message[0]);
-//    Serial.print("    ");
-//    Serial.print(message[1]);
-//    Serial.print("    ");
-//    Serial.print(bitRead(message[2],3));
-//    Serial.print(bitRead(message[2],2));
-//    Serial.print(bitRead(message[2],1));
-//    Serial.print(bitRead(message[2],0));
-//    Serial.print("    ");
-//    Serial.println(shooting);
 
-//    radio.stopListening();    //change to TX mode
-//
-//    //{HP, HPmax, ammo, ammoMax, ...}
-//    byte outbound[outbound_len];    //to send to controller
-//    outbound[0] = HP;
-//    outbound[1] = HPmax;
-//    outbound[2] = ammo;
-//    outbound[3] = ammoMax;
-//
-//    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
-//    radio.startListening();   //change back to RX mode
+    radio.stopListening();    //change to TX mode
+
+    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+    byte outbound[outbound_len];    //to send to controller
+    int HPmsb = HP >> 8;
+    byte HPlsb = byte(HP);
+    outbound[0] = HPmsb;
+    outbound[1] = HPlsb;
+    outbound[2] = 0;    //will contain status effects
+
+    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
+    radio.startListening();   //change back to RX mode
     
     
   }
