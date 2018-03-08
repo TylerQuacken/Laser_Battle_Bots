@@ -44,7 +44,7 @@ int servo_pin = 3;
 #define shooter_pin A1
 #define IR_in_pin 2
 
-int cooldown = 300;     //# of millis between shots
+int cooldown = 0;     //# of millis between shots
 unsigned long last_shot = 0;
 
 #define CE_pin 7    //TX/RX mode pin
@@ -287,7 +287,8 @@ void shoot(byte message){
     digitalWrite(shooter_pin, LOW);
     delayMicroseconds(500);
   }
-  
+
+  shooting = 0;
 }
 
 void data_in(){
