@@ -225,24 +225,27 @@ void loop() {
   byte message[] = {leftWheel, rightWheel, buttons};
   
   // write returns true if successful
-  if (radio.write(&message, sizeof(message)) && bitRead(buttons,2) && ammo[weapon_select] > 0)
+  if (radio.write(&message, sizeof(message)))
   {
+    // Check to see if ammo needs to be decremented
+    if (bitRead(buttons,2) && ammo[weapon_select] > 0)
+    {
       ammo[weapon_select]--;
       weapon_cooldown = millis() + cooldown_times[weapon_select];
+    }
+    // Listen for the incoming response if transmission is acknowledged
+    radio.startListening();
+    while(!radio.available());
+    radio.read(&incoming, sizeof(incoming));
+    
+    //decode incoming data
+    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+    int hpMS = incoming[0];
+    hpMS << 8;
+    int hpLS = incoming[1];
+    hp = hpMS + hpLS;
 
-      //listen for the reply
-      radio.startListening();
-      while(!radio.available());
-      radio.read(&incoming, sizeof(incoming));
-      
-      //decode incoming date
-      //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
-      int hpMS = incoming[0];
-      hpMS << 8;
-      int hpLS = incoming[1];
-      hp = hpMS + hpLS;
-
-      radio.stopListening();
+    radio.stopListening();
   }
 
   
