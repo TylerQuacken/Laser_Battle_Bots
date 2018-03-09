@@ -37,6 +37,8 @@
 RF24 radio(7, 8); // numbers define CE CSN pins
 const byte out_address[6] = "00001";
 const byte in_address[6] = "00002";
+byte incoming[3];
+
 
 // Declare x and y input pins
 byte y_pin = 0;
@@ -227,6 +229,20 @@ void loop() {
   {
       ammo[weapon_select]--;
       weapon_cooldown = millis() + cooldown_times[weapon_select];
+
+      //listen for the reply
+      radio.startListening();
+      while(!radio.available());
+      radio.read(&incoming, sizeof(incoming));
+      
+      //decode incoming date
+      //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+      int hpMS = incoming[0];
+      hpMS << 8;
+      int hpLS = incoming[1];
+      hp = hpMS + hpLS;
+
+      radio.stopListening();
   }
 
   
