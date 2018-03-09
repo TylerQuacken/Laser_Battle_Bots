@@ -23,6 +23,8 @@
 #define button1 2    //left button
 #define button2 4    //shooter button
 #define button3 5   //weapon select
+#define button_set1 A6 // turret control
+#define button_set2 A7 // shooter, weapon select
 
 #define RS 9
 #define EN 10
@@ -140,16 +142,57 @@ void loop() {
   }
 
   // Use a debouncing algorithm to read the servo command
-  int left_1 = digitalRead(button1);
-  int right_1 = digitalRead(button0);
-  int shooter_1 = digitalRead(button2);
-  int select_1 = digitalRead(button3);
-  delay(10);
-  
-  boolean left = digitalRead(button1) && left_1;
-  boolean right = digitalRead(button0) && right_1;
-  boolean shooter = digitalRead(button2) && shooter_1;
-  boolean select = digitalRead(button3) && select_1;
+//  int left_1 = digitalRead(button1);
+//  int right_1 = digitalRead(button0);
+//  int shooter_1 = digitalRead(button2);
+//  int select_1 = digitalRead(button3);
+//  delay(10);
+//  
+//  boolean left = digitalRead(button1) && left_1;
+//  boolean right = digitalRead(button0) && right_1;
+//  boolean shooter = digitalRead(button2) && shooter_1;
+//  boolean select = digitalRead(button3) && select_1;
+
+  boolean left = 0;
+  boolean right = 0;
+  boolean shooter = 0;
+  boolean selectl = 0;
+  boolean selectr = 0;
+
+  float set1_value = map(analogRead(button_set1), 0, 1023, 0, 5);
+  float set2_value = map(analogRead(button_set1), 0, 1023, 0, 5);
+  if (set1_value < 1){}
+  else if (set1_value < 2.5)
+  {
+    boolean left = 1;
+  }
+  else
+  {
+    boolean right = 1;
+  }
+
+  if (set2_value < 0.75){}
+  else if (set2_value < 1.75)
+  {
+    boolean shooter = 1;
+  }
+  else if (set2_value < 3)
+  {
+    boolean selectl = 1;
+  }
+  else
+  {
+    boolean selectr = 1;
+  }
+
+  // A6 functions
+  // 2.29 is button 1
+  // 4.61 is button 2
+
+  // A7 functions
+  // 1.515 is button 3
+  // 2.28 is button 4
+  // 4.61 is button 5
 
   bitWrite(buttons,0,right);
   bitWrite(buttons,1,left);
@@ -157,7 +200,7 @@ void loop() {
 
   if (ammo[weapon_select] > 0)
   {
-    if (!shooter && millis() > weapon_cooldown)
+    if (shooter && millis() > weapon_cooldown)
     {
       // This assumes reload is the last option
       if (weapon_select == num_weapons-1)
@@ -180,29 +223,42 @@ void loop() {
   byte message[] = {leftWheel, rightWheel, buttons};
   
   // write returns true if successful
-  if (radio.write(&message, sizeof(message)) && !bitRead(buttons,2) && ammo[weapon_select] > 0)
+  if (radio.write(&message, sizeof(message)) && bitRead(buttons,2) && ammo[weapon_select] > 0)
   {
       ammo[weapon_select]--;
       weapon_cooldown = millis() + cooldown_times[weapon_select];
   }
 
   
-  Serial.print(message[0]);
+//  Serial.print(message[0]);
+//  Serial.print("\t");
+//  Serial.print(message[1]);
+//  Serial.print("\t");
+//  Serial.print(bitRead(message[2],0));
+//  Serial.print(bitRead(message[2],1));
+//  Serial.print(bitRead(message[2],2));
+//  Serial.print(selectl);
+//  Serial.print(selectr);
+//  Serial.println("");
+
+  Serial.print(button_set1);
   Serial.print("\t");
-  Serial.print(message[1]);
-  Serial.print("\t");
-  Serial.print(bitRead(message[2],0));
-  Serial.print(bitRead(message[2],1));
-  Serial.print(bitRead(message[2],2));
-  Serial.print(select);
+  Serial.print(button_set2);
   Serial.println("");
     
   // Check weapon select
-  if (!select && millis() > select_cooldown)
+  if (selectr && millis() > select_cooldown)
   {
     weapon_select += 1;
     if (weapon_select > num_weapons - 1)
       weapon_select = 0;
+    select_cooldown = millis() + 300;
+  }
+  else if (selectl && millis() > select_cooldown)
+  {
+    weapon_select -= 1;
+    if (weapon_select < 0)
+      weapon_select = num_weapons - 1;
     select_cooldown = millis() + 300;
   }
 
