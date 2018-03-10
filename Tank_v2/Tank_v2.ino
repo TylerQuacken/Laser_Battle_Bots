@@ -33,7 +33,6 @@
 #include <RF24.h>
 #include <Servo.h>
 
-
 #define IN1 A2    //forward Left
 #define IN2 A3
 int ENA = 5;
@@ -59,8 +58,6 @@ int Lspeed = 0;
 int Rspeed = 0;
 int HPmax = 100;
 int HP = 100;
-int ammoMax = 10;
-int ammo = 10;
 int turret_pos = 90;
 boolean shooting = 0;
 volatile boolean IR_receiving = false;
@@ -195,7 +192,7 @@ void check_inbox(){
       turret_pos += 3;
     if (bitRead(message[2],1) == 1 && turret_pos > 0) // second bit is servo decrementer
       turret_pos -= 3;
-    shooting = !(bitRead(message[2],2)); // third bit is LED activator
+    shooting = (bitRead(message[2],2)); // third bit is LED activator
     
     Serial.print(Lspeed);
     Serial.print("    ");
@@ -203,18 +200,18 @@ void check_inbox(){
     Serial.println("    ");
 
 
-    radio.stopListening();    //change to TX mode
-
-    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
-    byte outbound[outbound_len];    //to send to controller
-    int HPmsb = HP >> 8;
-    byte HPlsb = byte(HP);
-    outbound[0] = HPmsb;
-    outbound[1] = HPlsb;
-    outbound[2] = 0;    //will contain status effects
-
-    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
-    radio.startListening();   //change back to RX mode
+//    radio.stopListening();    //change to TX mode
+//
+//    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+//    byte outbound[outbound_len];    //to send to controller
+//    int HPmsb = HP >> 8;
+//    byte HPlsb = byte(HP);
+//    outbound[0] = HPmsb;
+//    outbound[1] = HPlsb;
+//    outbound[2] = 0;    //will contain status effects
+//
+//    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
+//    radio.startListening();   //change back to RX mode
     
     
   }
