@@ -68,7 +68,7 @@ String weapon_types[] = {"Basic Cannon","Heavy Cannon","Machine Gun","Reload"};
 int cooldown_times[] = {300,2500,50,500};
 int weapon_damage[] = {10,50,6,0}; // This needs to be encoded into an additional byte with attack
 byte num_weapons = 4;
-byte weapon_select = 0;
+int weapon_select = 0;
 unsigned long select_cooldown = 0; // weapon select cooldown
 unsigned long weapon_cooldown = 0; // weapon shooter cooldown--this could be an array to make them independent
 // other options include radial blast, regenative shield, machine gun, nuke (100 damage), homing missile?
@@ -143,62 +143,41 @@ void loop() {
     rightWheel = temp;
   }
 
-  // Use a debouncing algorithm to read the servo command
-//  int left_1 = digitalRead(button1);
-//  int right_1 = digitalRead(button0);
-//  int shooter_1 = digitalRead(button2);
-//  int select_1 = digitalRead(button3);
-//  delay(10);
-//  
-//  boolean left = digitalRead(button1) && left_1;
-//  boolean right = digitalRead(button0) && right_1;
-//  boolean shooter = digitalRead(button2) && shooter_1;
-//  boolean select = digitalRead(button3) && select_1;
-
   boolean left = 0;
   boolean right = 0;
   boolean shooter = 0;
   boolean selectl = 0;
   boolean selectr = 0;
 
-  float set1_value = map(analogRead(button_set1), 0, 1023, 0, 5);
-  float set2_value = map(analogRead(button_set1), 0, 1023, 0, 5);
-  if (set1_value < 1){}
-  else if (set1_value < 2.5)
+  int set1_value = analogRead(button_set1);
+  int set2_value = analogRead(button_set2);
+  if (set1_value < 450){}
+  else if (set1_value < 600)
   {
-    boolean left = 1;
+    left = 1;
   }
   else
   {
-    boolean right = 1;
+    right = 1;
   }
 
-  if (set2_value < 0.75){}
-  else if (set2_value < 1.75)
+  if (set2_value < 300){}
+  else if (set2_value < 450)
   {
-    boolean shooter = 1;
+    shooter = 1;
   }
-  else if (set2_value < 3)
+  else if (set2_value < 600)
   {
-    boolean selectl = 1;
+    selectl = 1;
   }
   else
   {
-    boolean selectr = 1;
+    selectr = 1;
   }
 
-  // A6 functions
-  // 2.29 is button 1
-  // 4.61 is button 2
-
-  // A7 functions
-  // 1.515 is button 3
-  // 2.28 is button 4
-  // 4.61 is button 5
-
+  // Encode the message with resultant servo commands
   bitWrite(buttons,0,right);
   bitWrite(buttons,1,left);
-  //bitWrite(buttons,2,shooter);
 
   if (ammo[weapon_select] > 0)
   {
@@ -233,19 +212,19 @@ void loop() {
       ammo[weapon_select]--;
       weapon_cooldown = millis() + cooldown_times[weapon_select];
     }
-    // Listen for the incoming response if transmission is acknowledged
-    radio.startListening();
-    while(!radio.available());
-    radio.read(&incoming, sizeof(incoming));
-    
-    //decode incoming data
-    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
-    int hpMS = incoming[0];
-    hpMS << 8;
-    int hpLS = incoming[1];
-    hp = hpMS + hpLS;
-
-    radio.stopListening();
+//    // Listen for the incoming response if transmission is acknowledged
+//    radio.startListening();
+//    while(!radio.available());
+//    radio.read(&incoming, sizeof(incoming));
+//    
+//    //decode incoming data
+//    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+//    int hpMS = incoming[0];
+//    hpMS << 8;
+//    int hpLS = incoming[1];
+//    hp = hpMS + hpLS;
+//
+//    radio.stopListening();
   }
 
   
@@ -260,10 +239,6 @@ void loop() {
 //  Serial.print(selectr);
 //  Serial.println("");
 
-  Serial.print(button_set1);
-  Serial.print("\t");
-  Serial.print(button_set2);
-  Serial.println("");
     
   // Check weapon select
   if (selectr && millis() > select_cooldown)
@@ -271,14 +246,14 @@ void loop() {
     weapon_select += 1;
     if (weapon_select > num_weapons - 1)
       weapon_select = 0;
-    select_cooldown = millis() + 300;
+    select_cooldown = millis() + 200;
   }
   else if (selectl && millis() > select_cooldown)
   {
     weapon_select -= 1;
     if (weapon_select < 0)
       weapon_select = num_weapons - 1;
-    select_cooldown = millis() + 300;
+    select_cooldown = millis() + 200;
   }
 
   printVitals();
