@@ -19,10 +19,7 @@
 #include "control_func.h"
 #include "control_chars.h"
 
-#define button0 3    //right button
-#define button1 2    //left button
-#define button2 4    //shooter button
-#define button3 5   //weapon select
+// Pins 2-5 are free!
 #define button_set1 A6 // turret control
 #define button_set2 A7 // shooter, weapon select
 
@@ -99,11 +96,6 @@ void setup() {
   pinMode(d5, OUTPUT);
   pinMode(d6, OUTPUT);
   pinMode(d7, OUTPUT);
-  // Button inputs
-  pinMode(button1, INPUT_PULLUP); // Make buttons digital inputs
-  pinMode(button0, INPUT_PULLUP);
-  pinMode(button2, INPUT_PULLUP);
-  pinMode(button3, INPUT_PULLUP);
 }
 
 void loop() {
@@ -192,13 +184,13 @@ void loop() {
           ammo[i] = ammo_max[i];
       }
       else
-        bitWrite(buttons,2,0);
+        bitWrite(buttons,2,1);
     }
     else
-      bitWrite(buttons,2,1);
+      bitWrite(buttons,2,0);
   }
   else
-    bitWrite(buttons,2,1);
+    bitWrite(buttons,2,0);
 
   // Put together all commands into a message
   byte message[] = {leftWheel, rightWheel, buttons};
@@ -228,16 +220,16 @@ void loop() {
   }
 
   
-//  Serial.print(message[0]);
-//  Serial.print("\t");
-//  Serial.print(message[1]);
-//  Serial.print("\t");
-//  Serial.print(bitRead(message[2],0));
-//  Serial.print(bitRead(message[2],1));
-//  Serial.print(bitRead(message[2],2));
-//  Serial.print(selectl);
-//  Serial.print(selectr);
-//  Serial.println("");
+  Serial.print(message[0]);
+  Serial.print("\t");
+  Serial.print(message[1]);
+  Serial.print("\t");
+  Serial.print(bitRead(message[2],0));
+  Serial.print(bitRead(message[2],1));
+  Serial.print(bitRead(message[2],2));
+  Serial.print(selectl);
+  Serial.print(selectr);
+  Serial.println("");
 
     
   // Check weapon select

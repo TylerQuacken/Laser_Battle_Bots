@@ -188,10 +188,10 @@ void check_inbox(){
 
     Lspeed = map(message[0], 0, 255, -255, 255);    //stuff incoming data into the right spots
     Rspeed = map(message[1], 0, 255, -255, 255);
-    if (bitRead(message[2],0) == 1 && turret_pos < 180) // rightmost bit is servo incrementer
-      turret_pos += 3;
-    if (bitRead(message[2],1) == 1 && turret_pos > 0) // second bit is servo decrementer
+    if (bitRead(message[2],0) == 1 && turret_pos > 0) // rightmost bit is servo incrementer
       turret_pos -= 3;
+    if (bitRead(message[2],1) == 1 && turret_pos < 180) // second bit is servo decrementer
+      turret_pos += 3;
     shooting = (bitRead(message[2],2)); // third bit is LED activator
     
     Serial.print(Lspeed);
