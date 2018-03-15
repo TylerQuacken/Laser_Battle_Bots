@@ -204,9 +204,11 @@ void loop() {
       ammo[weapon_select]--;
       weapon_cooldown = millis() + cooldown_times[weapon_select];
     }
-//    // Listen for the incoming response if transmission is acknowledged
+    
+    // Listen for the incoming response if transmission is acknowledged
 //    radio.startListening();
-//    while(!radio.available());
+//    unsigned long timeout = millis() + 10;
+//    while((!radio.available()) || (millis > timeout));
 //    radio.read(&incoming, sizeof(incoming));
 //    
 //    //decode incoming data
@@ -215,21 +217,22 @@ void loop() {
 //    hpMS << 8;
 //    int hpLS = incoming[1];
 //    hp = hpMS + hpLS;
+//    Serial.println(hp);
 //
 //    radio.stopListening();
   }
 
   
-  Serial.print(message[0]);
-  Serial.print("\t");
-  Serial.print(message[1]);
-  Serial.print("\t");
-  Serial.print(bitRead(message[2],0));
-  Serial.print(bitRead(message[2],1));
-  Serial.print(bitRead(message[2],2));
-  Serial.print(selectl);
-  Serial.print(selectr);
-  Serial.println("");
+//  Serial.print(message[0]);
+//  Serial.print("\t");
+//  Serial.print(message[1]);
+//  Serial.print("\t");
+//  Serial.print(bitRead(message[2],0));
+//  Serial.print(bitRead(message[2],1));
+//  Serial.print(bitRead(message[2],2));
+//  Serial.print(selectl);
+//  Serial.print(selectr);
+//  Serial.println("");
 
     
   // Check weapon select
@@ -306,3 +309,14 @@ void printVitals(){
 }
 
 
+
+  Serial.print(message[0]);
+  Serial.print("\t");
+  Serial.print(message[1]);
+  Serial.print("\t");
+  Serial.print(bitRead(message[2],0));
+  Serial.print(bitRead(message[2],1));
+  Serial.print(bitRead(message[2],2));
+  Serial.print(selectl);
+  Serial.print(selectr);
+  Serial.println("");

@@ -82,7 +82,7 @@ void setup() {
   pinMode(10, OUTPUT);
   pinMode(shooter_pin, OUTPUT);
   pinMode(IR_in_pin, INPUT);
-  Serial.begin(115200);
+  Serial.begin(9600);
   radio.begin();
   radio.openReadingPipe(1, controller_address);
   radio.openWritingPipe(tank_address);
@@ -200,18 +200,18 @@ void check_inbox(){
     Serial.println("    ");
 
 
-//    radio.stopListening();    //change to TX mode
-//
-//    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
-//    byte outbound[outbound_len];    //to send to controller
-//    int HPmsb = HP >> 8;
-//    byte HPlsb = byte(HP);
-//    outbound[0] = HPmsb;
-//    outbound[1] = HPlsb;
-//    outbound[2] = 0;    //will contain status effects
-//
-//    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
-//    radio.startListening();   //change back to RX mode
+    radio.stopListening();    //change to TX mode
+
+    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+    byte outbound[outbound_len];    //to send to controller
+    int HPmsb = HP >> 8;
+    byte HPlsb = byte(HP);
+    outbound[0] = HPmsb;
+    outbound[1] = HPlsb;
+    outbound[2] = 0;    //will contain status effects
+
+    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
+    radio.startListening();   //change back to RX mode
     
     
   }
