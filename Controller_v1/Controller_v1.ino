@@ -141,31 +141,16 @@ void loop() {
   boolean selectl = 0;
   boolean selectr = 0;
 
+  boolean button_vals[] = {0,0,0,0,0};
   int set1_value = analogRead(button_set1);
-  int set2_value = analogRead(button_set2);
-  if (set1_value < 450){}
-  else if (set1_value < 600)
-  {
-    left = 1;
-  }
-  else
-  {
-    right = 1;
-  }
+  //Serial.println(set1_value);
+  button_states(set1_value, button_vals);
 
-  if (set2_value < 300){}
-  else if (set2_value < 450)
-  {
-    shooter = 1;
-  }
-  else if (set2_value < 600)
-  {
-    selectl = 1;
-  }
-  else
-  {
-    selectr = 1;
-  }
+  right = button_vals[0];
+  left = button_vals[1];
+  shooter = button_vals[2];
+  selectl = button_vals[3];
+  selectr = button_vals[4];
 
   // Encode the message with resultant servo commands
   bitWrite(buttons,0,right);
@@ -207,9 +192,11 @@ void loop() {
     
     // Listen for the incoming response if transmission is acknowledged
 //    radio.startListening();
-//    unsigned long timeout = millis() + 10;
-//    while((!radio.available()) || (millis > timeout));
-//    radio.read(&incoming, sizeof(incoming));
+//    unsigned long timeout = millis() + 10;    //10ms timeout
+//    while((!radio.available()) && (millis < timeout));    //wait until trans received
+//    
+//    if(radio.available())    //if not timed out, get message
+//      radio.read(&incoming, sizeof(incoming));
 //    
 //    //decode incoming data
 //    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
@@ -217,22 +204,22 @@ void loop() {
 //    hpMS << 8;
 //    int hpLS = incoming[1];
 //    hp = hpMS + hpLS;
-//    Serial.println(hp);
+//    //Serial.println(hp);
 //
 //    radio.stopListening();
   }
 
   
-//  Serial.print(message[0]);
-//  Serial.print("\t");
-//  Serial.print(message[1]);
-//  Serial.print("\t");
-//  Serial.print(bitRead(message[2],0));
-//  Serial.print(bitRead(message[2],1));
-//  Serial.print(bitRead(message[2],2));
-//  Serial.print(selectl);
-//  Serial.print(selectr);
-//  Serial.println("");
+  Serial.print(message[0]);
+  Serial.print("\t");
+  Serial.print(message[1]);
+  Serial.print("\t");
+  Serial.print(bitRead(message[2],0));
+  Serial.print(bitRead(message[2],1));
+  Serial.print(bitRead(message[2],2));
+  Serial.print(selectl);
+  Serial.print(selectr);
+  Serial.println("");
 
     
   // Check weapon select
@@ -309,14 +296,3 @@ void printVitals(){
 }
 
 
-
-  Serial.print(message[0]);
-  Serial.print("\t");
-  Serial.print(message[1]);
-  Serial.print("\t");
-  Serial.print(bitRead(message[2],0));
-  Serial.print(bitRead(message[2],1));
-  Serial.print(bitRead(message[2],2));
-  Serial.print(selectl);
-  Serial.print(selectr);
-  Serial.println("");
