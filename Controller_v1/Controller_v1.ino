@@ -1,7 +1,7 @@
 /*
  * Laser Battle Bot - Controller v2.0
  * 
- * by Landon Willey
+ * by Landon Willey & Tyler Quackenbush
  * 2/8/2018
  * 
  * Library: TMRh20/RF24
@@ -75,6 +75,7 @@ unsigned long weapon_cooldown = 0; // weapon shooter cooldown--this could be an 
 
 void setup() {
   Serial.begin(9600); // Set serial transmission rate
+  
   radio.begin(); // Start the radio
   radio.openWritingPipe(out_address);
   radio.openReadingPipe(2, in_address);
@@ -179,7 +180,8 @@ void loop() {
 
   // Put together all commands into a message
   byte message[] = {leftWheel, rightWheel, buttons};
-  
+
+  ////////SEND INFO////////
   // write returns true if successful
   if (radio.write(&message, sizeof(message)))
   {
@@ -189,24 +191,28 @@ void loop() {
       ammo[weapon_select]--;
       weapon_cooldown = millis() + cooldown_times[weapon_select];
     }
-    
+  
+    ////////GET INCOMING////////
     // Listen for the incoming response if transmission is acknowledged
-//    radio.startListening();
-//    unsigned long timeout = millis() + 10;    //10ms timeout
-//    while((!radio.available()) && (millis < timeout));    //wait until trans received
-//    
-//    if(radio.available())    //if not timed out, get message
-//      radio.read(&incoming, sizeof(incoming));
-//    
-//    //decode incoming data
-//    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
-//    int hpMS = incoming[0];
-//    hpMS << 8;
-//    int hpLS = incoming[1];
-//    hp = hpMS + hpLS;
-//    //Serial.println(hp);
-//
-//    radio.stopListening();
+    radio.startListening();
+    unsigned long timeout = millis() + 10;    //10ms timeout
+    //while((!radio.available()) && (millis < timeout));    //wait until trans received
+    delay(10);
+    if(radio.available())    //if not timed out, get message
+      radio.read(&incoming, sizeof(incoming));
+
+    radio.stopListening();
+
+    ////////ACT ON INCOMING & OUTGOING////////
+    
+    //decode incoming data
+    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+    int hpMS = incoming[0];
+    hpMS << 8;
+    int hpLS = incoming[1];
+    hp = hpMS + hpLS;
+    //Serial.println(hp);
+    
   }
 
   
@@ -242,15 +248,6 @@ void loop() {
 
   delay(10);
   
-  
-//  radio.startListening();               //listen for response
-//  while (!radio.available()){           //wait until response comes
-//  }
-//  char message[32] = "";
-//  radio.read(&message, sizeof(message));    //stuff response into message
-//  Serial.println(message);
-//  delay(1000);
-//  radio.stopListening();              //get ready to send again
 }
 
 

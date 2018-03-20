@@ -1,7 +1,7 @@
 /*
  * Laser Battle Bot - Tank v1.0
  * 
- * by Tyler Quackenbush
+ * by Tyler Quackenbush & Landon Willey
  * 2/3/2018
  * 
  * Library: TMRh20/RF24
@@ -82,12 +82,14 @@ void setup() {
   pinMode(10, OUTPUT);
   pinMode(shooter_pin, OUTPUT);
   pinMode(IR_in_pin, INPUT);
-  Serial.begin(9600);
+  //Serial.begin(9600);
+  
   radio.begin();
   radio.openReadingPipe(1, controller_address);
   radio.openWritingPipe(tank_address);
   radio.setPALevel(RF24_PA_MIN);
   radio.startListening();
+  
   turret.attach(servo_pin);
   attachInterrupt(digitalPinToInterrupt(IR_in_pin), data_in, RISING);
 }
@@ -123,16 +125,16 @@ void loop() {
   
   if(IR_message_ready == true){
     for (int i = 0; i < IR_message_length; i++){
-      Serial.print(IR_message[i]);
-      Serial.print("    ");
+      //Serial.print(IR_message[i]);
+      //Serial.print("    ");
     }
-    Serial.println(" ");
+    //Serial.println(" ");
     clear_IR_message();
   }
 
 
 
-  //Receive any incoming transmissions
+  //Receive any incoming RF transmissions
 
   check_inbox();
 
@@ -175,10 +177,27 @@ void drive(int Lval, int Rval){     //Drives the motors with speed and direction
 
 void check_inbox(){
   if(radio.available()) {   //if there's a message waiting
-    
+    ////////GET INCOMING////////
     //{Lmotor_speed, Rmotor_speed, Servo position, ...}
     byte message[inbound_len];        //stuff incoming data into 'message'
     radio.read(&message, inbound_len);
+
+    ////////REPLY////////
+    radio.stopListening();    //change to TX mode
+
+    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+    byte outbound[outbound_len];    //to send to controller
+    int HPmsb = HP >> 8;
+    byte HPlsb = byte(HP);
+    outbound[0] = HPmsb;
+    outbound[1] = HPlsb;
+    outbound[2] = 0;    //will contain status effects
+
+    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
+    radio.startListening();   //change back to RX mode
+
+    ////////ACT ON RECEIVED DATA////////
+    
 //    Serial.print(message[0]);
 //    Serial.print("    ");
 //    Serial.print(message[1]);
@@ -194,25 +213,10 @@ void check_inbox(){
       turret_pos += 3;
     shooting = (bitRead(message[2],2)); // third bit is LED activator
     
-    Serial.print(Lspeed);
-    Serial.print("    ");
-    Serial.print(Rspeed);
-    Serial.println("    ");
-
-
-//    radio.stopListening();    //change to TX mode
-//
-//    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
-//    byte outbound[outbound_len];    //to send to controller
-//    int HPmsb = HP >> 8;
-//    byte HPlsb = byte(HP);
-//    outbound[0] = HPmsb;
-//    outbound[1] = HPlsb;
-//    outbound[2] = 0;    //will contain status effects
-//
-//    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
-//    radio.startListening();   //change back to RX mode
-    
+    //Serial.print(Lspeed);
+    //Serial.print("    ");
+    //Serial.print(Rspeed);
+    //Serial.println("    ");
     
   }
 }
@@ -255,11 +259,6 @@ void shoot(byte message){
 //  Serial.print("    ");
 //  Serial.print(transmit[7]);
 //  Serial.println("    ");
-
-//  digitalWrite(out_pin, HIGH);
-//  delayMicroseconds(3000);
-//  digitalWrite(out_pin, LOW);
-//  delayMicroseconds(6000);
   
   digitalWrite(shooter_pin, HIGH);
   delayMicroseconds(1000);
@@ -278,33 +277,6 @@ void shoot(byte message){
 
 void data_in(){
     IR_receiving = true;
-    //Serial.println("flag");
-  
-//  IR_message[index] = micros();
-//  index ++;
-  
-//    unsigned long change = micros();
-//  if (IR_receiving == false && 7000 > change - last_change > 5000){
-//    IR_receiving = true;
-//  }
-//  else if (IR_receiving == true && input_state == LOW){
-//    input_state = HIGH;
-//  }
-//  else if (IR_receiving == true && input_state == HIGH){
-//    input_state = LOW;
-//    if (1500 < change - last_change < 2500)
-//      IR_message[bit_no] = 1;
-//    bit_no--;
-//  }
-//
-//  if (bit_no < 0){
-//    IR_receiving = false; 
-//    bit_no = 7;
-//  }
-//  
-//  
-//  last_change = change;
-  
 }
 
 void clear_IR_message(){
