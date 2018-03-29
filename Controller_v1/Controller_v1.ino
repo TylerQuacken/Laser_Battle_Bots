@@ -192,19 +192,29 @@ void loop() {
       ammo[weapon_select]--;
       weapon_cooldown = millis() + cooldown_times[weapon_select];
     }
-//    // Listen for the incoming response if transmission is acknowledged
-//    radio.startListening();
-//    while(!radio.available());
-//    radio.read(&incoming, sizeof(incoming));
-//    
-//    //decode incoming data
-//    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
-//    int hpMS = incoming[0];
-//    hpMS << 8;
-//    int hpLS = incoming[1];
-//    hp = hpMS + hpLS;
-//
-//    radio.stopListening();
+    
+    // Listen for the incoming response if transmission is acknowledged
+    radio.startListening();
+    //while(!radio.available());
+    delay(10);
+    if(radio.available()){
+      radio.read(&incoming, sizeof(incoming));
+    }
+    
+    //decode incoming data
+    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+    int hpMS = incoming[0];
+    hpMS << 8;
+    int hpLS = incoming[1];
+    hp = hpMS + hpLS;
+
+      Serial.print(incoming[0]);
+      Serial.print("\t");
+      Serial.print(incoming[1]);
+      Serial.print("\t");
+      Serial.println(hp);
+
+    radio.stopListening();
   }
 
   
@@ -238,10 +248,9 @@ void loop() {
 
   printVitals();
 
-  delay(10);
+  //delay(10);
   
 }
-
 
 void printVitals(){
   
@@ -300,13 +309,14 @@ void printVitals(){
 //    ////////ACT ON INCOMING & OUTGOING////////
 //    //Serial.println(hp);
     
-  Serial.print(message[0]);
-  Serial.print("\t");
-  Serial.print(message[1]);
-  Serial.print("\t");
-  Serial.print(bitRead(message[2],0));
-  Serial.print(bitRead(message[2],1));
-  Serial.print(bitRead(message[2],2));
-  Serial.print(selectl);
-  Serial.print(selectr);
-  Serial.println("");
+//  Serial.print(message[0]);
+//  Serial.print("\t");
+//  Serial.print(message[1]);
+//  Serial.print("\t");
+//  Serial.print(bitRead(message[2],0));
+//  Serial.print(bitRead(message[2],1));
+//  Serial.print(bitRead(message[2],2));
+//  Serial.print(selectl);
+//  Serial.print(selectr);
+//  Serial.println(" ");
+  

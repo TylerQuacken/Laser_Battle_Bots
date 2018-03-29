@@ -174,7 +174,6 @@ void drive(int Lval, int Rval){     //Drives the motors with speed and direction
   }
 }
 
-
 void check_inbox(){
   if(radio.available()) {   //if there's a message waiting
     ////////GET INCOMING////////
@@ -183,18 +182,18 @@ void check_inbox(){
     radio.read(&message, inbound_len);
 
     ////////REPLY////////
-//    radio.stopListening();    //change to TX mode
-//
-//    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
-//    byte outbound[outbound_len];    //to send to controller
-//    int HPmsb = HP >> 8;
-//    byte HPlsb = byte(HP);
-//    outbound[0] = HPmsb;
-//    outbound[1] = HPlsb;
-//    outbound[2] = 0;    //will contain status effects
-//
-//    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
-//    radio.startListening();   //change back to RX mode
+    radio.stopListening();    //change to TX mode
+
+    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+    byte outbound[outbound_len];    //to send to controller
+    int HPmsb = HP >> 8;
+    byte HPlsb = byte(HP);
+    outbound[0] = 255;//HPmsb;
+    outbound[1] = 255;//HPlsb;
+    outbound[2] = 0;    //will contain status effects
+
+    radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
+    radio.startListening();   //change back to RX mode
 
     ////////ACT ON RECEIVED DATA////////
     
