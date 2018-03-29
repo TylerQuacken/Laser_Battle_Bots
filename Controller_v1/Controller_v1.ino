@@ -103,9 +103,10 @@ void loop() {
 
 
   // Initialize variables to read joystick values
-  int y = analogRead(y_pin);
+  int x = analogRead(y_pin);
+  x = 1023 - x; // X input needs to be inverted
+  int y = analogRead(x_pin);
   y = 1023 - y; // Y input needs to be inverted
-  int x = analogRead(x_pin);
 
   // Limit y input to allow for turning at high speeds
   y = map(y, 0, 1023, 127, 895); // 1/8 off the edge of either side
@@ -193,25 +194,25 @@ void loop() {
     }
   
     ////////GET INCOMING////////
-    // Listen for the incoming response if transmission is acknowledged
-    radio.startListening();
-    unsigned long timeout = millis() + 10;    //10ms timeout
-    //while((!radio.available()) && (millis < timeout));    //wait until trans received
-    delay(10);
-    if(radio.available())    //if not timed out, get message
-      radio.read(&incoming, sizeof(incoming));
-
-    radio.stopListening();
-
-    ////////ACT ON INCOMING & OUTGOING////////
-    
-    //decode incoming data
-    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
-    int hpMS = incoming[0];
-    hpMS << 8;
-    int hpLS = incoming[1];
-    hp = hpMS + hpLS;
-    //Serial.println(hp);
+//    // Listen for the incoming response if transmission is acknowledged
+//    radio.startListening();
+//    unsigned long timeout = millis() + 10;    //10ms timeout
+//    //while((!radio.available()) && (millis < timeout));    //wait until trans received
+//    delay(10);
+//    if(radio.available())    //if not timed out, get message
+//      radio.read(&incoming, sizeof(incoming));
+//
+//    radio.stopListening();
+//
+//    ////////ACT ON INCOMING & OUTGOING////////
+//    
+//    //decode incoming data
+//    //{hpMSbyte, hpLSbyte, 0b[~,~,~,~,~,slow,disable,freeze]}
+//    int hpMS = incoming[0];
+//    hpMS << 8;
+//    int hpLS = incoming[1];
+//    hp = hpMS + hpLS;
+//    //Serial.println(hp);
     
   }
 
