@@ -56,14 +56,18 @@ byte Lammo_pos[] = {10,0};
 byte weapon_pos[] = {0,1};
 
 // Player status
-int hp = 500;
+int team = 0; //0 = solo, # = team
+int hp = 999;
 int hp_max = 500;
 int ammo[] = {99, 10, 99, 5};
 int ammo_max[] = {99, 10, 99, 5};
 // Weapon variables
 String weapon_types[] = {"Basic Cannon","Heavy Cannon","Machine Gun","Reload"};
 int cooldown_times[] = {300,2500,50,500};
-int weapon_damage[] = {10,50,6,0}; // This needs to be encoded into an additional byte with attack
+int damage_vals[] = {0,1,3,5,10,25,50,100};   //IR transmits 0bXXX, the index to this array
+int weapon_damage[] = {4,6,3,0}; // This needs to be encoded into an additional byte with attack
+byte weapon_status[] = {0b000, 0b000, 0b000, 0b000};  //{slow, disable, freeze}
+byte shot_config = team <<5 ; //{team_b1, team_b0, dmg_b2, dmg_b1, dmg_b0, slow, disable, freeze}
 byte num_weapons = 4;
 int weapon_select = 0;
 unsigned long select_cooldown = 0; // weapon select cooldown
@@ -179,8 +183,13 @@ void loop() {
   else
     bitWrite(buttons,2,0);
 
+  shot_config = byte(team)<<2;
+  shot_config = (shot_config + weapon_damage[weapon_select])<<3;
+  shot_config = shot_config + weapon_status[weapon_select];
+
+
   // Put together all commands into a message
-  byte message[] = {leftWheel, rightWheel, buttons};
+  byte message[] = {leftWheel, rightWheel, buttons, shot_config};
 
   ////////SEND INFO////////
   // write returns true if successful
@@ -195,8 +204,9 @@ void loop() {
     
     // Listen for the incoming response if transmission is acknowledged
     radio.startListening();
-    //while(!radio.available());
-    delay(10);
+    unsigned long timeout = millis() + 100;
+    while(!radio.available() && millis()<timeout);
+    //delay(10);
     if(radio.available()){
       radio.read(&incoming, sizeof(incoming));
     }
@@ -248,7 +258,7 @@ void loop() {
 
   printVitals();
 
-  //delay(10);
+  delay(30);
   
 }
 

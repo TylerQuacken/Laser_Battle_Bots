@@ -56,21 +56,23 @@ unsigned long last_shot = 0;
 
 int Lspeed = 0;
 int Rspeed = 0;
-int HPmax = 100;
-int HP = 100;
+int HPmax = 500;
+int HP = 500;
+bool stat[] = {0,0,0};    //{slow, disable, freeze}
 int turret_pos = 90;
 boolean shooting = 0;
 volatile boolean IR_receiving = false;
 volatile boolean IR_message_ready = false;
-//volatile unsigned long last_change = 0;
-//volatile byte index = 0;
 volatile unsigned long IR_message[] = {0, 0, 0, 0, 0, 0, 0, 0};
+byte shot_config = 0;
+
+int damage_vals[] = {0,1,3,5,10,25,50,100};   //IR transmits 0bXXX, the index to this array
 
 Servo turret;
 
 RF24 radio(CE_pin, CSN_pin);
-const byte controller_address[6] = "00001";
-const byte tank_address[6] = "00002";
+const byte in_address[6] = "00001";
+const byte out_address[6] = "00002";
 
 void setup() {
   // put your setup code here, to run once:
@@ -82,11 +84,11 @@ void setup() {
   pinMode(10, OUTPUT);
   pinMode(shooter_pin, OUTPUT);
   pinMode(IR_in_pin, INPUT);
-  //Serial.begin(9600);
+  Serial.begin(9600);
   
   radio.begin();
-  radio.openReadingPipe(1, controller_address);
-  radio.openWritingPipe(tank_address);
+  radio.openReadingPipe(1, in_address);
+  radio.openWritingPipe(out_address);
   radio.setPALevel(RF24_PA_MIN);
   radio.startListening();
   
@@ -102,37 +104,11 @@ void loop() {
   //digitalWrite(shooter_pin,shooting);
   if(shooting == true && (millis() - last_shot >= cooldown)){
     last_shot = millis();
-    shoot(0b01001001);    //Fire one damage, solo mode
+    shoot(shot_config);    //Fire one damage, solo mode
   }
 
   //Get IR input
-  if (IR_receiving == true){    //If interrupt has been triggered and IR is inbound
-    IR_message_ready = true;
-    unsigned long pulse = 0;
-    for (int i = 0; i < IR_message_length; i++){
-      pulse = pulseInLong(IR_in_pin, HIGH, 50000);
-      //Serial.println(pulse);
-      if (pulse > 750){
-        IR_message[i] = 1;
-      }
-      else if (pulse == 0){
-        clear_IR_message();
-        break;
-      }
-    }
-    IR_receiving = false;
-  }
-  
-  if(IR_message_ready == true){
-    for (int i = 0; i < IR_message_length; i++){
-      //Serial.print(IR_message[i]);
-      //Serial.print("    ");
-    }
-    //Serial.println(" ");
-    clear_IR_message();
-  }
-
-
+  IR_in();
 
   //Receive any incoming RF transmissions
 
@@ -177,7 +153,7 @@ void drive(int Lval, int Rval){     //Drives the motors with speed and direction
 void check_inbox(){
   if(radio.available()) {   //if there's a message waiting
     ////////GET INCOMING////////
-    //{Lmotor_speed, Rmotor_speed, Servo position, ...}
+    //{Lmotor_speed, Rmotor_speed, Servo position, shot_configuration}
     byte message[inbound_len];        //stuff incoming data into 'message'
     radio.read(&message, inbound_len);
 
@@ -188,8 +164,14 @@ void check_inbox(){
     byte outbound[outbound_len];    //to send to controller
     int HPmsb = HP >> 8;
     byte HPlsb = byte(HP);
-    outbound[0] = 255;//HPmsb;
-    outbound[1] = 255;//HPlsb;
+    Serial.print(HP, BIN);
+    Serial.print("\t");
+    Serial.print(HPmsb, BIN);
+    Serial.print("\t");
+    Serial.print(HPlsb, BIN);
+    Serial.println("\t");
+    outbound[0] = HPmsb;
+    outbound[1] = HPlsb;
     outbound[2] = 0;    //will contain status effects
 
     radio.write(&outbound, outbound_len);   //send the message, wait for acknowledge
@@ -211,6 +193,7 @@ void check_inbox(){
     if (bitRead(message[2],1) == 1 && turret_pos < 180) // second bit is servo decrementer
       turret_pos += 3;
     shooting = (bitRead(message[2],2)); // third bit is LED activator
+    shot_config = message[3];
     
     //Serial.print(Lspeed);
     //Serial.print("    ");
@@ -272,6 +255,39 @@ void shoot(byte message){
   }
 
   shooting = 0;
+}
+
+void IR_in(){
+  if (IR_receiving == true){    //If interrupt has been triggered and IR is inbound
+    IR_message_ready = true;
+    unsigned long pulse = 0;
+    for (int i = 0; i < IR_message_length; i++){
+      pulse = pulseInLong(IR_in_pin, HIGH, 50000);
+      //Serial.println(pulse);
+      if (pulse > 750){
+        IR_message[i] = 1;
+      }
+      else if (pulse == 0){
+        clear_IR_message();
+        break;
+      }
+    }
+    IR_receiving = false;
+  }
+  
+  if(IR_message_ready == true){
+//    for (int i = 0; i < IR_message_length; i++){
+//      Serial.print(IR_message[i]);
+//      Serial.print("\t");
+//    }
+//    Serial.println(" ");
+
+    int damage_index = IR_message[5]<<2 + IR_message[4]<<1 + IR_message[3];
+    int damage_taken = damage_vals[damage_index];
+    HP -= damage_taken;
+    
+    clear_IR_message();
+  }
 }
 
 void data_in(){
