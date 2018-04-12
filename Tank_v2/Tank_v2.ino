@@ -41,6 +41,7 @@ int ENA = 5;
 int ENB = 6;
 int servo_pin = 3;
 #define shooter_pin A1
+#define shooter_led 4
 #define IR_in_pin 2
 
 int cooldown = 0;     //# of millis between shots
@@ -82,6 +83,7 @@ void setup() {
   pinMode(ENA, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
+  pinMode(shooter_led, OUTPUT);
   pinMode(buzzer, OUTPUT);
   pinMode(shooter_pin, OUTPUT);
   pinMode(IR_in_pin, INPUT);
@@ -216,6 +218,8 @@ int deadZone(int num, int radius, int deadVal){   //takes any number (usually a 
 }
 
 void shoot(byte message){
+  digitalWrite(buzzer, HIGH);
+  digitalWrite(shooter_led, HIGH);
   
   int transmit[8];
   transmit[0] = 380 + 500*(boolean(0x80&message));  //team
@@ -257,6 +261,9 @@ void shoot(byte message){
   }
 
   shooting = 0;
+  
+  digitalWrite(buzzer, LOW);
+  digitalWrite(shooter_led, LOW);
 }
 
 void IR_in(){
@@ -265,7 +272,6 @@ void IR_in(){
     unsigned long pulse = 0;
     for (int i = 0; i < IR_message_length; i++){
       pulse = pulseInLong(IR_in_pin, HIGH, 50000);
-      //Serial.println(pulse);
       if (pulse > 750){
         IR_message[i] = 1;
       }
@@ -289,6 +295,8 @@ void IR_in(){
     if (damage_taken > 0){
       HP -= damage_taken;
       // set buzzer high
+      digitalWrite(buzzer, LOW);
+      
     }
     
     clear_IR_message();
@@ -297,6 +305,7 @@ void IR_in(){
 
 void data_in(){
     IR_receiving = true;
+    digitalWrite(buzzer, HIGH);
 }
 
 void clear_IR_message(){
