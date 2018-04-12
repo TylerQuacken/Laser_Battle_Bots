@@ -110,7 +110,7 @@ void loop() {
   int x = analogRead(y_pin);
   x = 1023 - x; // X input needs to be inverted
   int y = analogRead(x_pin);
-  y = 1023 - y; // Y input needs to be inverted
+//  y = 1023 - y; // Y input needs to be inverted
 
   // Limit y input to allow for turning at high speeds
   y = map(y, 0, 1023, 127, 895); // 1/8 off the edge of either side
@@ -149,11 +149,11 @@ void loop() {
 
   boolean button_vals[] = {0,0,0,0,0};
   int set1_value = analogRead(button_set1);
-  //Serial.println(set1_value);
-  button_states(set1_value, button_vals);
+//  Serial.println(set1_value);
+  button_states_2(set1_value, button_vals);
 
-  right = button_vals[0];
-  left = button_vals[1];
+  left = button_vals[0];
+  right = button_vals[1];
   shooter = button_vals[2];
   selectl = button_vals[3];
   selectr = button_vals[4];
@@ -297,6 +297,12 @@ void printVitals(){
   //display current weapon selection
   lcd.setCursor(weapon_pos[0]+1, weapon_pos[1]);    
   lcd.print(weapon_string);
+
+  Serial.print(hp_text);
+  Serial.print("\t");
+  Serial.print(ammo_text);
+  Serial.print("\t");
+  Serial.println(weapon_string);
 
 //  Serial.println(hp_text);
 //  Serial.println(ammo_text);

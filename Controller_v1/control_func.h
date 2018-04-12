@@ -1,36 +1,57 @@
-
-void button_states(int analog_val, boolean button_input[]){
-  float levels[32] = {14,33.5,52.5,73,90,110,131,152.5,164,184,204.5,
-                    226,246,267,290,314,322,342,363,384.5,404.5,426,
-                    449.5,474,491,512.5,536.5,561.5,586,610,640,672};
-  
-  int negmin = 0;
-  byte neg_index = 0;
-  int posmin = 0;
-  byte pos_index = 0;
+void button_states_2(int analog_val, boolean button_input[]){
+  float levels[33] = {0,24.5,47,69.5,91.5,114,138,160.5,178,198.5,224,248,270.5,293.5,317.5,
+                      342,359,375,398.5,422.5,445.5,468.5,493,468.5,490,561,586,611,635.5,
+                      661,689,719.5,1024};
   byte index;
-
-  for(int i = 0; i < 31 ; i++){
-    posmin = analog_val - levels[i];
-    pos_index = i;
-    negmin = analog_val - levels[i+1];
-    neg_index = i+1;
-    if (negmin < 0)
+  for(int i = 0; i < 32; i++){
+    if (analog_val >= levels[i] && analog_val < levels[i+1]){
+      index = i;
       break;
-  }
-
-  if ((posmin+negmin)> 0){    //if negmin is closer to 0
-    index = neg_index;
-  }
-  else{
-    index = pos_index;
+    }
   }
 
   for(int i = 0; i < 5; i++){
     button_input[4-i] = bitRead(index, i);
   }
-  
-  
 }
+
+
+//off     13
+//rbump   36
+//lbump   58
+//L+R     81
+//
+//white   102
+//w+R     126
+//w+L     150
+//w+L+R   171
+//
+//blue    185
+//b+R     212
+//b+L     236
+//b+R+L   260
+//b+w     281
+//b+w+R   306
+//b+w+L   329
+//b+w+R+L 355
+//
+//green   363
+//gR      387
+//gL      410
+//gLR     435
+//gw      456
+//gwR     481
+//gwL     505
+//gwLR    532
+//gb      548
+//gbR     574
+//gbL     598
+//gbLR    624
+//gbw     647
+//gbwR    675
+//gbwL    703
+//gbwLR   736
+
+
 
 

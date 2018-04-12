@@ -53,6 +53,7 @@ unsigned long last_shot = 0;
 #define inbound_len 3     //# of bytes in incoming message
 #define outbound_len 3
 #define IR_message_length 8
+#define buzzer 10
 
 int Lspeed = 0;
 int Rspeed = 0;
@@ -81,7 +82,7 @@ void setup() {
   pinMode(ENA, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
-  pinMode(10, OUTPUT);
+  pinMode(buzzer, OUTPUT);
   pinMode(shooter_pin, OUTPUT);
   pinMode(IR_in_pin, INPUT);
   Serial.begin(9600);
@@ -94,6 +95,7 @@ void setup() {
   
   turret.attach(servo_pin);
   attachInterrupt(digitalPinToInterrupt(IR_in_pin), data_in, RISING);
+  digitalWrite(buzzer,LOW); // Initialize buzzer to off state
 }
 
 void loop() {
@@ -284,7 +286,10 @@ void IR_in(){
 
     int damage_index = IR_message[5]<<2 + IR_message[4]<<1 + IR_message[3];
     int damage_taken = damage_vals[damage_index];
-    HP -= damage_taken;
+    if (damage_taken > 0){
+      HP -= damage_taken;
+      // set buzzer high
+    }
     
     clear_IR_message();
   }
