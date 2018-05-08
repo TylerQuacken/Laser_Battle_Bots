@@ -105,8 +105,20 @@ void setup() {
 
 void loop() {
 
+  composeMessage();  //puts together the message to transfer
+  
+  sendRF();   //sends message
+              //currently goes into RX mode after sending, but that should
+              //be put in another function and put on a separate timer
 
-  // Initialize variables to read joystick values
+  printVitals();  //Updates weapon select and prints LCD data
+  
+}
+
+////////////////////// FUNCTIONS ////////////////////////////
+
+void composeMessage(){
+    // Initialize variables to read joystick values
   int x = analogRead(y_pin);
   x = 1023 - x; // X input needs to be inverted
   int y = analogRead(x_pin);
@@ -191,6 +203,19 @@ void loop() {
   // Put together all commands into a message
   byte message[] = {leftWheel, rightWheel, buttons, shot_config};
 
+//  Serial.print(message[0]);
+//  Serial.print("\t");
+//  Serial.print(message[1]);
+//  Serial.print("\t");
+//  Serial.print(bitRead(message[2],0));
+//  Serial.print(bitRead(message[2],1));
+//  Serial.print(bitRead(message[2],2));
+//  Serial.print(selectl);
+//  Serial.print(selectr);
+//  Serial.println("");
+}
+
+void sendRF(){
   ////////SEND INFO////////
   // write returns true if successful
   if (radio.write(&message, sizeof(message)))
@@ -226,20 +251,9 @@ void loop() {
 
     radio.stopListening();
   }
+}
 
-  
-//  Serial.print(message[0]);
-//  Serial.print("\t");
-//  Serial.print(message[1]);
-//  Serial.print("\t");
-//  Serial.print(bitRead(message[2],0));
-//  Serial.print(bitRead(message[2],1));
-//  Serial.print(bitRead(message[2],2));
-//  Serial.print(selectl);
-//  Serial.print(selectr);
-//  Serial.println("");
-
-    
+void printVitals(){
   // Check weapon select
   if (selectr && millis() > select_cooldown)
   {
@@ -255,14 +269,6 @@ void loop() {
       weapon_select = num_weapons - 1;
     select_cooldown = millis() + 200;
   }
-
-  printVitals();
-
-  delay(30);
-  
-}
-
-void printVitals(){
   
   lcd.setCursor(hp_pos[0], hp_pos[1]);    //display the hp icon
   lcd.write(heart_char);
@@ -310,29 +316,3 @@ void printVitals(){
 }
 
 
-
-  
-    ////////GET INCOMING////////
-//    // Listen for the incoming response if transmission is acknowledged
-//    unsigned long timeout = millis() + 10;    //10ms timeout
-//    //while((!radio.available()) && (millis < timeout));    //wait until trans received
-//    delay(10);
-//    if(radio.available())    //if not timed out, get message
-//      radio.read(&incoming, sizeof(incoming));
-//
-//    radio.stopListening();
-//
-//    ////////ACT ON INCOMING & OUTGOING////////
-//    //Serial.println(hp);
-    
-//  Serial.print(message[0]);
-//  Serial.print("\t");
-//  Serial.print(message[1]);
-//  Serial.print("\t");
-//  Serial.print(bitRead(message[2],0));
-//  Serial.print(bitRead(message[2],1));
-//  Serial.print(bitRead(message[2],2));
-//  Serial.print(selectl);
-//  Serial.print(selectr);
-//  Serial.println(" ");
-  
